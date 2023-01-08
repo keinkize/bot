@@ -21,7 +21,6 @@ const tick = async (coin, config, binance) => {
         //         });
         //     }
         // })
-        console.log(`Coin : `+coin )
         const price = await binance.fetchOHLCV(symbol, '1m', undefined, 5).catch(e => { console.log(e) });
         if (price.length > 0) {
             const bPrices = price.map(price => {
@@ -34,6 +33,7 @@ const tick = async (coin, config, binance) => {
                     vol: price[5]
                 }
             })
+            console.log(`Coin ${coin} :` + bPrices[bPrices.length - 1].close);
             const marketPrice = bPrices[bPrices.length - 1].close;
             const times = bPrices[bPrices.length - 1].timestamps
             /// lấy chỉ báo
@@ -119,14 +119,16 @@ async function run() {
         });
 
         while (true) {
-            await tick('ETH/USDT',config, binance);
-            await tick('BTC/USDT',config, binance);
-            await tick('OP/USDT',config, binance);
-            await tick('LINK/USDT',config, binance);
-            await tick('DOT/USDT',config, binance);
-            await tick('NEAR/USDT',config, binance);
-            await tick('NEO/USDT',config, binance);
-            await tick('BNB/USDT',config, binance);
+            await tick('ETH/USDT', config, binance);
+            await tick('BTC/USDT', config, binance);
+            await tick('OP/USDT', config, binance);
+            await tick('LINK/USDT', config, binance);
+            await tick('DOT/USDT', config, binance);
+            await tick('NEAR/USDT', config, binance);
+            await tick('NEO/USDT', config, binance);
+            await tick('DOGE/USDT', config, binance);
+            await tick('BNB/USDT', config, binance);
+            await tick('TRX/USDT', config, binance);
         }
         // setInterval(tick, config.tickInverval, config, binance)
     } catch (error) {
