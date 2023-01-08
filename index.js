@@ -8,7 +8,6 @@ require('dotenv').config();
 
 const tick = async (coin, config, binance) => {
     try {
-        console.log(`Coin : `+coin )
         const { base, allowcation, spread } = config;
         ///Cặp giao dịch
         const symbol = coin;
@@ -22,6 +21,7 @@ const tick = async (coin, config, binance) => {
         //         });
         //     }
         // })
+        console.log(`Coin : `+coin )
         const price = await binance.fetchOHLCV(symbol, '1m', undefined, 5).catch(e => { console.log(e) });
         if (price.length > 0) {
             const bPrices = price.map(price => {
@@ -37,8 +37,8 @@ const tick = async (coin, config, binance) => {
             const marketPrice = bPrices[bPrices.length - 1].close;
             const times = bPrices[bPrices.length - 1].timestamps
             /// lấy chỉ báo
-            const rsiData = await rsi(6, "close", 'binance', symbol, "5m", true).catch(e => { console.log(e) })
-            const bbData = await bb(10, 3, "close", "binance", symbol, "5m", true).catch(e => { console.log(e) })
+            const rsiData = await rsi(6, "close", 'binance', symbol, "15m", true).catch(e => { console.log(e) })
+            const bbData = await bb(10, 3, "close", "binance", symbol, "15m", true).catch(e => { console.log(e) })
             if (rsiData.length > 0 && bbData.length > 0) {
                 const val_RSI = rsiData[rsiData.length - 1];
                 const val_BB = bbData[bbData.length - 1];
@@ -55,7 +55,7 @@ const tick = async (coin, config, binance) => {
                     console.log(`Lệnh đã được mở`)
                 } else {
                     /// Thuat toan
-                    if (val_RSI > 73 && marketPrice > val_BB.upper) {
+                    if (val_RSI > 72 && marketPrice > val_BB.upper) {
                         const side = 'sell';
                         /// Giá bán
                         const sellPrice = marketPrice;
@@ -120,19 +120,12 @@ async function run() {
 
         while (true) {
             await tick('ETH/USDT',config, binance);
-            await delay(config.tickInverval);
             await tick('BTC/USDT',config, binance);
-            await delay(config.tickInverval);
             await tick('OP/USDT',config, binance);
-            await delay(config.tickInverval);
             await tick('LINK/USDT',config, binance);
-            await delay(config.tickInverval);
             await tick('DOT/USDT',config, binance);
-            await delay(config.tickInverval);
             await tick('NEAR/USDT',config, binance);
-            await delay(config.tickInverval);
             await tick('NEO/USDT',config, binance);
-            await delay(config.tickInverval);
             await tick('BNB/USDT',config, binance);
         }
         // setInterval(tick, config.tickInverval, config, binance)
