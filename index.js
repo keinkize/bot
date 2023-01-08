@@ -37,8 +37,8 @@ const tick = async (coin, config, binance) => {
             const marketPrice = bPrices[bPrices.length - 1].close;
             const times = bPrices[bPrices.length - 1].timestamps
             /// lấy chỉ báo
-            const rsiData = await rsi(6, "close", 'binance', symbol, "15m", true).catch(e => { console.log(e) })
-            const bbData = await bb(36, 4, "close", "binance", symbol, "15m", true).catch(e => { console.log(e) })
+            const rsiData = await rsi(6, "close", 'binance', symbol, "5m", true).catch(e => { console.log(e) })
+            const bbData = await bb(10, 3, "close", "binance", symbol, "5m", true).catch(e => { console.log(e) })
             if (rsiData.length > 0 && bbData.length > 0) {
                 const val_RSI = rsiData[rsiData.length - 1];
                 const val_BB = bbData[bbData.length - 1];
