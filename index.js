@@ -8,7 +8,7 @@ require('dotenv').config();
 
 const tick = async (coin, config, binance) => {
     try {
-        const { base, allowcation, spread } = config;
+        const { base, allocation, spread } = config;
         ///Cặp giao dịch
         const symbol = coin;
         /// Hủy lệnh thuộc cặp giao dịch còn trên account
@@ -49,48 +49,40 @@ const tick = async (coin, config, binance) => {
                 /// Tổng số tiền 
                 const asset = balance.total[base];
                 /// Khối lượng bán/mua
-                const Vol = assetBalance * allowcation;
-                const status = await binance.fetchOpenOrders(symbol).catch(e => { console.log(e) })
-                if (status.length > 0) {
+                const USD_T = (assetBalance * allocation)* 20;
+                const Vol = USD_T/marketPrice;
+                const Cal = (USD_T * (1 + 0.003)/Vol);
+                
+                if (binance.has['fetchOrders'])
+                    order = await binance.fetchOpenOrders(symbol);
+                if (order.length > 0) {
                     console.log(`Lệnh đã được mở`)
                 } else {
                     /// Thuat toan
                     // && marketPrice > val_BB.upper
-                    if (val_RSI > 72) {
+                    if (val_RSI > 75) {
                         const side = 'sell';
                         /// Giá bán
                         const sellPrice = marketPrice;
                         const params = {
-                            'stopLoss': {
-                                'type': 'limit', // or 'market'
-                                'price': marketPrice * (1 + 0.02),
-                                'triggerPrice': marketPrice * (1 + 0.06),
-                            },
-                            'takeProfit': {
-                                'type': 'limit',
-                                'triggerPrice': marketPrice * (1 - spread),
-                            }
+                            'positionSide': 'SHORT',
+                            'takeProfitPrice': (USD_T * (1 - 0.003)/Vol),
+                            'stopLossPrice': (USD_T * (1 + 0.003)/Vol)
                         }
                         const order = await binance.createOrder(symbol, 'market', side, Vol, sellPrice, params).catch(e => { console.log(e) })
-                        console.log(`Short ${symbol} ở giá ${sellPrice} với ${Vol} USDT`);
+                        console.log(`Short ${symbol} ở giá ${sellPrice} với ${USD_T} USDT`);
                         // && marketPrice < val_BB.lower
-                    } else if (val_RSI < 27) {
+                    } else if (val_RSI < 25) {
                         const side = 'buy';
                         /// Giá Mua
                         const buyPrice = marketPrice;
                         const params = {
-                            'stopLoss': {
-                                'type': 'limit', // or 'market'
-                                'price': marketPrice * (1 - 0.02),
-                                'triggerPrice': marketPrice * (1 - 0.06),
-                            },
-                            'takeProfit': {
-                                'type': 'limit',
-                                'triggerPrice': marketPrice * (1 + spread),
-                            }
+                            'positionSide': 'LONG',
+                            'stopLossPrice': (USD_T * (1 + 0.003)/Vol),
+                            'takeProfitPrice': (USD_T * (1 - 0.003)/Vol)
                         }
                         const order = await binance.createOrder(symbol, 'market', side, Vol, buyPrice, params).catch(e => { console.log(e) })
-                        console.log(`Long ${symbol} ở giá ${buyPrice} với ${Vol} USDT`);
+                        console.log(`Long ${symbol} ở giá ${buyPrice} với ${USD_T} USDT`);
                     }
                 }
                 console.log(`[${times}] Total Balance Free : ${assetBalance} USDT`);
@@ -109,14 +101,15 @@ async function run() {
         const config = {
             base: 'USDT',
             allocation: 0.1,
-            spread: 0.08,
-            tickInverval: 50
+            spread: 0.08
         }
         const binance = new ccxt.binance({
             apiKey: process.env.API_KEY,
             secret: process.env.API_SECRET,
             options: {
-                'defaultType': 'future' // chế độ future
+                'defaultType': 'future', // chế độ future
+                'dualSidePosition': true,
+                'positionSide': 'BOTH'
             },
         });
 
