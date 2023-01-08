@@ -14,7 +14,9 @@
     "ccxt": "^2.5.20",
     "delay": "^5.0.0",
     "dotenv": "^16.0.3",
-    "moment": "^2.29.4",
+    "moment": "^2.29.4"
+  },
+  "devDependencies": {
     "trading-indicator": "^1.0.8"
   }
 }
