@@ -55,7 +55,8 @@ const tick = async (coin, config, binance) => {
                     console.log(`Lệnh đã được mở`)
                 } else {
                     /// Thuat toan
-                    if (val_RSI > 72 && marketPrice > val_BB.upper) {
+                    // && marketPrice > val_BB.upper
+                    if (val_RSI > 72) {
                         const side = 'sell';
                         /// Giá bán
                         const sellPrice = marketPrice;
@@ -70,9 +71,10 @@ const tick = async (coin, config, binance) => {
                                 'triggerPrice': marketPrice * (1 - spread),
                             }
                         }
-                        const order = await exchange.createOrder(symbol, 'market', side, Vol, sellPrice, params).catch(e => { console.log(e) })
+                        const order = await binance.createOrder(symbol, 'market', side, Vol, sellPrice, params).catch(e => { console.log(e) })
                         console.log(`Short ${symbol} ở giá ${sellPrice} với ${Vol} USDT`);
-                    } else if (val_RSI < 27 && marketPrice < val_BB.lower) {
+                        // && marketPrice < val_BB.lower
+                    } else if (val_RSI < 27) {
                         const side = 'buy';
                         /// Giá Mua
                         const buyPrice = marketPrice;
@@ -87,7 +89,7 @@ const tick = async (coin, config, binance) => {
                                 'triggerPrice': marketPrice * (1 + spread),
                             }
                         }
-                        const order = await exchange.createOrder(symbol, 'market', side, Vol, buyPrice, params).catch(e => { console.log(e) })
+                        const order = await binance.createOrder(symbol, 'market', side, Vol, buyPrice, params).catch(e => { console.log(e) })
                         console.log(`Long ${symbol} ở giá ${buyPrice} với ${Vol} USDT`);
                     }
                 }
